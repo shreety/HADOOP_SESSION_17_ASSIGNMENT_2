@@ -1,0 +1,36 @@
+Problem Statement 1 :
+
+1. case class Record(Name: String, Subject: String, Grade: String, FirstMarks: Int, SecondMarks: Int)
+2. val dfCustomers = sc.textFile("hdfs:///user/cloudera/17.2_Dataset.txt")
+3. val FilteredData = dfCustomers.filter(_.nonEmpty)
+4. val dfRecords = FilteredData.map(_.split(",") match{
+case Array (name,subject,grade,firstMarks,secondMarks) => Record(name,subject,grade,firstMarks.toInt,secondMarks.toInt)
+case unexpectedArrayForm => 
+    throw new RuntimeException("Record did not have correct number of fields: " +
+      unexpectedArrayForm.mkString("\t"))
+}).toDF()
+5. val Subject = dfRecords.select("Subject").distinct().show()
+
+6.val StudentNumber = dfRecords.select("Name","FirstMarks","SecondMarks").filter(dfRecords.col("Name").equalTo("Mathew") && ($"FirstMarks" === 55 || $"SecondMarks" === 55)).count()
+
+Problem Statement 2:
+
+1. dfRecords.groupBy("Grade").count().show()
+
+2.dfRecords.groupBy("Name","Grade").agg(avg($"FirstMarks"),avg($"SecondMarks")).show()
+
+3.dfRecords.groupBy("Subject").agg(avg($"FirstMarks"),avg($"SecondMarks")).show()
+
+4.dfRecords.groupBy("Grade","Subject").agg(avg($"FirstMarks"),avg($"SecondMarks")).show()
+
+5. val StudentIngrade2 =dfRecords.filter($"Grade".equalTo("grade-2")).groupBy("Name").agg(avg($"FirstMarks").as("FirstAvg"),avg($"SecondMarks").as("SecondAvg"))
+
+ StudentIngrade2.filter($"FirstAvg" > 50 || $"SecondAvg" > 50).count()
+ 
+Problem Statement 3:
+
+1. val AverageScoreAllGrade = dfRecords.groupBy("Name").agg(((avg($"FirstMarks") + avg($"SecondMarks"))/2).as("Avg")).show()
+
+val AverageScorePerGrade = dfRecords.groupBy("Name","Grade").agg(((avg($"FirstMarks") + avg($"SecondMarks"))/2).as("Avg")).show()
+
+
